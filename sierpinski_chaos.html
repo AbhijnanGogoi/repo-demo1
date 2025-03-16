@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chaos Game and Sierpinski Triangle</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: rgb(0, 0, 0);
+            background-image: url();
+
+            height: 100vh;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 style="color: rgb(255, 255, 255);">Chaos Game and the Sierpinski Triangle</h1>
+    <canvas id="playground" width="600" height="600"></canvas>
+    <div>
+        <button onclick="choosePoint()">Choose starting point</button>
+        <button onclick="run()">Start Chaos</button>
+    </div>
+</body>
+
+<script>
+    let startPoint = undefined;
+
+    // Initialise the canvas:
+    let canvas = document.getElementById("playground");
+    let width = canvas.width;
+    let height = canvas.height;
+    let ctx = canvas.getContext("2d");
+    // ctx.fillStyle = "#000000";
+    // ctx.fillRect(0,0,width,height);
+
+    // Draw the triangle:
+    let scale = 500;
+    let corners = [[0,0], [0.5,Math.sqrt(3)/2], [1,0]];
+    // let corners = [[0,0], [0,1], [1,0]];
+    let scaledCorners = corners.map(point => (point.map(component => (-1*(scale * component)+(height+scale)/2))));
+    ctx.strokeStyle = "#ffffff";
+    ctx.moveTo(scaledCorners[0][0], scaledCorners[0][1]);
+    ctx.lineTo(scaledCorners[1][0], scaledCorners[1][1]);
+    ctx.lineTo(scaledCorners[2][0], scaledCorners[2][1]);
+    ctx.lineTo(scaledCorners[0][0], scaledCorners[0][1]);
+    ctx.stroke();
+
+    let startPointSelector = (event)=>{
+            let rect = canvas.getBoundingClientRect();
+            let x = event.clientX - rect.left;
+            let y = event.clientY - rect.top;
+            startPoint = [x,y];
+            console.log(startPoint)
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(startPoint[0], startPoint[1], 1, 1);
+            canvas.removeEventListener("click", startPointSelector);
+        };
+
+    function choosePoint() {
+        canvas.addEventListener("click", startPointSelector);
+    }
+
+    function run() {
+        if(startPoint == undefined) {
+            alert("Please first choose the starting point!");
+            return;
+        }
+
+        let currentPoint = startPoint;
+        startPoint = undefined;
+        let count = 0;
+        let chaosInterval = setInterval(()=>{
+                if(count >= 100000) {
+                    clearInterval(chaosInterval);
+                }
+            
+                let C = scaledCorners[Math.floor(Math.random()*3)];
+                currentPoint[0] = Math.floor((currentPoint[0] + C[0])/2);
+                currentPoint[1] = Math.floor((currentPoint[1] + C[1])/2);
+                
+                red = 255 * Math.floor(1 - count/100000);
+                green = 255 * Math.floor(Math.abs(1 - 2*count/100000));
+                blue = 255* Math.floor(count/100000);
+
+                // ctx.fillStyle = `rgb(${red}, ${green}, ${blue})`;
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(currentPoint[0], currentPoint[1], 1, 1);
+                count++;
+            }, 5);
+    }
+</script>
+</html>
